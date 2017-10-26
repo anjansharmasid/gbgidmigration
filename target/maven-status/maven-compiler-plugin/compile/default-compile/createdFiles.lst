@@ -1,0 +1,6 @@
+com\thomascook\crm\gbgidmigration\db\DataSource.class
+com\thomascook\crm\gbgidmigration\App.class
+com\thomascook\crm\gbgidmigration\readfile\ReadFFromFile.class
+com\thomascook\crm\gbgidmigration\db\ConfigDatabase.class
+com\thomascook\crm\gbgidmigration\db\CustomerRecord.class
+com\thomascook\crm\gbgidmigration\db\connection\SQLExecutor.class
