@@ -75,7 +75,7 @@ public class SQLExecutor {
 			rsObj = pstmtObj.executeQuery();
 			while (rsObj.next()) {
 				Long tmp_cust_ref = rsObj.getLong("CUST_REF_NUM");
-				if(!ar.contains(tmp_cust_ref)){
+				if(!ar.contains(new Long(tmp_cust_ref))){
 				  ar.add(tmp_cust_ref);
 				}
 			}
@@ -101,7 +101,8 @@ public class SQLExecutor {
 		return ar;
 	}
 
-	public void insertRecord(String GBG_ID, int branch, long consultation_reff, String cust_ref_num, long record_number, String file_name, int multiple_record) throws Exception {
+	public void insertRecord(String GBG_ID, int branch, long consultation_reff, long cust_ref_num, long record_number, String file_name, int multiple_record) throws Exception {
+		if(! ifRowExists( branch,  cust_ref_num) ){
 		ResultSet rsObj = null;
 		Connection connObj = null;
 		PreparedStatement pstmtObj = null;
@@ -112,7 +113,7 @@ public class SQLExecutor {
 			pstmtObj.setString(1,GBG_ID);
 			pstmtObj.setInt(2,branch);
 			pstmtObj.setLong(3,consultation_reff);
-			pstmtObj.setString(4,cust_ref_num);
+			pstmtObj.setLong(4,cust_ref_num);
 			pstmtObj.setLong(5,record_number);
 			pstmtObj.setString(6,file_name);
 			pstmtObj.setInt(7,multiple_record);
@@ -135,7 +136,50 @@ public class SQLExecutor {
 				sqlException.printStackTrace();
 				logger.error("sqlException:" + sqlException.getMessage());
 			}
+		  }
 		}
 	}
-
+	
+	private boolean ifRowExists( int branch,  long cust_ref_num) throws Exception {
+		        boolean found = false;
+				ResultSet rsObj = null;
+				Connection connObj = null;
+				PreparedStatement pstmtObj = null;
+				String sql = "select count(*) as rc from TCV_CUSTOMER_TEMP where "
+						+ "BRANCH = ? and "
+						+ "CUST_REF_NUM = ?";     
+				try {
+					connObj = dataSource.getConnection();
+					pstmtObj = connObj.prepareStatement(sql);
+					pstmtObj.setInt(1,branch );
+					pstmtObj.setLong(2,cust_ref_num);
+					rsObj = pstmtObj.executeQuery();
+					rsObj.next();
+					int count = rsObj.getInt("rc");
+					if(count > 0){
+						found = true;
+					}
+				} catch (Exception sqlException) {
+					logger.error("sqlException:" + sqlException.getMessage());
+					sqlException.printStackTrace();
+					found = false;
+				} finally {
+					try {
+						if (rsObj != null) {
+							rsObj.close();
+						}
+						if (pstmtObj != null) {
+							pstmtObj.close();
+						}
+						if (connObj != null) {
+							connObj.close();
+						}
+					} catch (Exception sqlException) {
+						sqlException.printStackTrace();
+						found = false;
+						logger.error("sqlException:" + sqlException.getMessage());
+					}
+				}
+				return found;
+			}
 }

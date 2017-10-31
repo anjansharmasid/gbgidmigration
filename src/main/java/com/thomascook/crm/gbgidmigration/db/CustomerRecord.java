@@ -18,7 +18,7 @@ public class CustomerRecord {
 	private String GBG_ID;
 	private Integer branch;
 	private Long consultation_reff;
-	private String cust_ref_num;
+	private Long cust_ref_num;
 	private Long record_number;
 	private String file_name;
 	private Integer multiple_record;
@@ -33,22 +33,13 @@ public class CustomerRecord {
 		this.record_number = record_number;
 		this.file_name = file_name;
 		ArrayList<Long>  customer_reffList = getCustomers(branch,consultation_reff);
-		multiple_record = customer_reffList.size();
 		if(!customer_reffList.isEmpty()){
-			StringBuffer  cust_ref_num_tmp = new StringBuffer();
-	        int coma = customer_reffList.size(); 
-	        for(long l: customer_reffList ){
-	        	cust_ref_num_tmp.append(l);
-	        	if(coma > 1){
-	        		cust_ref_num_tmp.append(", ");
-	        		coma = coma -1;
-	        	}
-	        }
-	        cust_ref_num = cust_ref_num_tmp.toString();
+			multiple_record = customer_reffList.size();
+	        cust_ref_num = customer_reffList.get(0);
 		}
 	
 		try{
-		  if(!GBG_ID.isEmpty() && branch >0 && consultation_reff > 0 &&  !cust_ref_num.isEmpty() &&  ! file_name.isEmpty()){	
+		  if(!GBG_ID.isEmpty() && branch >0 && consultation_reff > 0 &&  cust_ref_num > 0 &&  ! file_name.isEmpty()){	
 		      sQLExecutor.insertRecord(GBG_ID, branch,consultation_reff, cust_ref_num, record_number,file_name, multiple_record);
 		  }else{
 			  logger.error("Failed to insert record in the temporary table :" + GBG_ID +","+ branch+","+consultation_reff+","+ cust_ref_num+","+ record_number+","+file_name+","+ multiple_record );
